@@ -2,7 +2,9 @@ FROM jenkins/jenkins:lts
 
 USER root
 
-ENV DEBIAN_FRONTEND=noninteractive
+# make /bin/sh symlink to bash instead of dash
+RUN echo "dash dash/sh boolean false" | debconf-set-selections
+RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
 
 RUN apt-get update && apt-get install -y wget
 RUN apt-get update && apt-get install -y gawk git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat cpio bc
@@ -12,49 +14,38 @@ RUN apt-get update && apt-get install -y python-git libcap2-bin
 RUN apt-get update && apt-get install -y lzop
 RUN apt-get update && apt-get install -y lynx device-tree-compiler
 
-ARG user=jenkins
-ARG group=jenkins
-ARG uid=1000
-ARG gid=1000
+#ARG user=jenkins
+#ARG group=jenkins
+#ARG uid=1000
+#ARG gid=1000
+#RUN groupadd -g ${gid} ${group} && RUN useradd -d "$JENKINS_HOME" -u ${uid} -g ${gid} -m -s /bin/bash ${user}
 
 ENV JENKINS_HOME /var/jenkins_home
 ENV JENKINS_SLAVE_AGENT_PORT 50000
-
-#RUN groupadd -g ${gid} ${group} && RUN useradd -d "$JENKINS_HOME" -u ${uid} -g ${gid} -m -s /bin/bash ${user}
  
-RUN echo "jenkins:jenkins" | chpasswd
-
 RUN apt-get update && apt-get install -y sudo
-RUN apt-get update && apt-get install -y apt-transport-https apt-utils
+RUN apt-get update && apt-get install -y apt-transport-https apt-utils software-properties-common
 
 RUN echo "jenkins:jenkins" | chpasswd && adduser jenkins sudo
 
 # HOME directory
 VOLUME /var/jenkins_home
 
-# repo
-ENV PATH /var/jenkins_home/bin:${PATH}
-
-RUN apt-get update && apt-get install -y python3
 # python 3.6
-#RUN apt-get install -y libgdbm-dev libc6-dev libnss3-dev
-#RUN apt-get update && apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
-#		libreadline-dev libsqlite3-dev wget llvm libncurses5-dev libncursesw5-dev \
-		#tk-dev libffi-dev liblzma-dev
-#RUN cd /opt \
-    #&& wget https://www.python.org/ftp/python/3.6.10/Python-3.6.10.tar.xz \
-    #&& tar xvf Python-3.6.10.tar.xz \
-    #&& cd Python-3.6.10 \
-	#&& ./configure && make && make install
-#RUN update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.5 1 \
-    #&& update-alternatives --install /usr/bin/python3 python3 /usr/local/bin/python3.6 2 \
-	#&& update-alternatives --set python3 /usr/local/bin/python3.6
+RUN apt-get install -y libgdbm-dev libc6-dev libnss3-dev
+RUN apt-get update && apt-get install -y make build-essential libssl-dev zlib1g-dev libbz2-dev \
+		libreadline-dev libsqlite3-dev wget llvm libncurses5-dev libncursesw5-dev \
+		tk-dev libffi-dev liblzma-dev
+RUN cd /opt \
+    && wget https://www.python.org/ftp/python/3.6.10/Python-3.6.10.tar.xz \
+    && tar xvf Python-3.6.10.tar.xz \
+    && cd Python-3.6.10 \
+    && ./configure && make && make install
 
 RUN apt-get update && apt-get install -y vim locales rsync 
 
 RUN apt-get update && apt-get install -y python3-pip python3-pexpect xz-utils debianutils iputils-ping python3-git python3-jinja2 libegl1-mesa libsdl1.2-dev pylint3 xterm
 RUN apt-get update && apt-get install -y img2simg simg2img
-#RUN apt-get update && apt-get install -y python-pip
 RUN pip3 install --upgrade pip
 RUN pip3 install pycrypto
 
@@ -94,6 +85,9 @@ ENV PATH ${ANDROID_HOME}/tools/bin:${ANDROID_HOME}/tools:${ANDROID_HOME}/platfor
 # Install custom tools
 COPY tools /opt/tools
 ENV PATH /opt/tools:${PATH}
+
+# repo
+RUN cd /opt/tools && wget https://storage.googleapis.com/git-repo-downloads/repo && chmod a+x /opt/tools/repo
 
 # Install Android platform and things
 ENV ANDROID_PLATFORM_VERSION 28
