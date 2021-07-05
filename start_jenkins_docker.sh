@@ -13,5 +13,4 @@ sudo docker run -it --name con_blueocean_jenkins --rm \
          --env LC_ALL='en_US.UTF-8' \
          --env LANG='en_US.UTF-8' \
          --env LANGUAGE='en_US.UTF-8' \
-         nexelldocker/jenkins-lts:bridge
-#nexelldocker/jenkins-lts:2021.03
+	 nexelldocker/jenkins-lts:2021.06
