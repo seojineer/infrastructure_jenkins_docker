@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  jenkins_onsite:
+    image: nexelldocker/jenkins-onsite:2021.07
+    ports:
+      - "8100:8080"
+      - "58100:50000"
+      - "2222:22"
+    volumes:
+      - /home/jenkins/Jenkins_Storage_BlueOcean:/var/jenkins_home
+      - /home/mirror:/home/mirror
+      - /home/jenkins/downloads:/opt/downloads
+      - /home/jenkins/.ssh:/var/jenkins_home/.ssh
+    networks:
+      - my_net
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    user: jenkins
+
+networks:
+  my_net:
+    external: true
