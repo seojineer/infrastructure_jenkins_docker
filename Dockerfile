@@ -117,6 +117,11 @@ RUN pip3 install ruamel_yaml
 RUN apt-get update && apt-get install -y libcurl4-gnutls-dev librtmp-dev
 RUN pip3 install pycurl
 
+# it cause apt-get error
+RUN sudo rm /etc/apt/sources.list.d/github_git-lfs.list
+# ssh
+RUN sudo apt-get update && sudo apt-get install -y net-tools openssh-server
+
 RUN echo "jenkins ALL=(ALL) NOPASSWD:ALL" | sudo tee -a /etc/sudoers
 
 USER jenkins
