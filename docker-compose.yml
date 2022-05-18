@@ -1,7 +1,8 @@
 version: "3.9"
 services:
   jenkins_onsite:
-    image: nexelldocker/jenkins-onsite:2021.07
+    build: .
+    image: seojikim/jenkins-lts:latest
     ports:
       - "8100:8080"
       - "58100:50000"
